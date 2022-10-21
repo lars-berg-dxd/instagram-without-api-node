@@ -228,6 +228,9 @@ function iwa({
                     const items = json?.data?.user?.edge_owner_to_timeline_media?.edges || [];
                     const filteredItems = items.filter((el, index) => { return !maxImages ? el : index < maxImages });
                     const mappedItems = await Promise.all(filteredItems.map(async (el) => {
+
+                        if(!el) return false;
+
                         const imageBody = base64images ? await imageToBase64(el['node']['display_url']) : false;
                         const image = imageBody || false;
                         let obj = {
@@ -237,7 +240,7 @@ function iwa({
                             likes: el['node']['edge_liked_by']['count'],
                             comments: el['node']['edge_media_to_comment']['count'],
                             link: 'https://www.instagram.com/p/' + el['node']['shortcode'] + '/',
-                            text: el['node']['edge_media_to_caption']['edges'][0]['node']['text']
+                            text: el['node']['edge_media_to_caption']?.['edges']?.[0]?.['node']['text'] ?? "empty"
                         }
                         if (image) obj.image = image;
                         return obj
